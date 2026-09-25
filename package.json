@@ -1,0 +1,26 @@
+{
+  "name": "tiktok-discord-notifier",
+  "version": "1.0.0",
+  "description": "Notifikasi Discord otomatis untuk TikTok LIVE dan upload konten baru.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test \"test/**/*.test.js\"",
+    "check-env": "node src/index.js --check-env",
+    "once": "node src/index.js --once"
+  },
+  "keywords": [
+    "tiktok",
+    "discord",
+    "webhook",
+    "notifier"
+  ],
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -1,0 +1,26 @@
+# Secrets - JANGAN PERNAH di-commit
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Runtime state (berisi riwayat notifikasi, bukan untuk repo)
+data/state.json
+data/*.json
+!data/.gitkeep
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# PM2
+.pm2/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
