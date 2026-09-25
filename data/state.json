@@ -3,11 +3,11 @@
   "lastContentId": null,
   "knownContentIds": [],
   "contentBootstrapped": false,
-  "currentLiveId": null,
-  "lastLiveStatus": false,
-  "liveStartedAt": null,
-  "liveMessageId": null,
-  "lastLiveUpdateAt": null,
-  "lastViewerCount": null,
-  "lastCheckedAt": "2026-09-25T11:47:02.175Z"
+  "currentLiveId": "7689474160623684373",
+  "lastLiveStatus": true,
+  "liveStartedAt": "2026-09-25T14:07:26.000Z",
+  "liveMessageId": "1553046003555242065",
+  "lastLiveUpdateAt": "2026-09-25T14:15:22.775Z",
+  "lastViewerCount": 6,
+  "lastCheckedAt": "2026-09-25T14:19:14.381Z"
 }
