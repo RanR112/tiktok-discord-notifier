@@ -12,9 +12,11 @@ name: TikTok Monitor
 # tepat waktu. Ini trade-off yang disengaja demi hosting gratis tanpa kartu.
 #
 # CATATAN: GitHub otomatis MENONAKTIFKAN scheduled workflow pada repo yang
-# tidak ada aktivitas (commit/push apa pun) selama 60 hari. Kalau notifier
-# tiba-tiba berhenti jalan tanpa error, cek Settings > Actions apakah
-# workflow ini berstatus "disabled" dan aktifkan lagi secara manual.
+# tidak ada aktivitas (commit apa pun) selama 60 hari. Ini TIDAK jadi masalah
+# di sini: `lastCheckedAt` di data/state.json berubah setiap siklus, jadi
+# langkah "Simpan state kembali ke repo" di bawah SELALU menghasilkan commit
+# baru setiap kali workflow ini jalan (tiap 5 menit) -- repo otomatis tetap
+# "aktif" dengan sendirinya, tanpa perlu commit manual apa pun.
 
 on:
   schedule:
