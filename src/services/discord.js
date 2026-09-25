@@ -261,7 +261,7 @@ export class DiscordService {
     }
 
     const payload = {
-      username: 'TikTok LIVE',
+      username: 'Tuyul Bot',
       content: `🔴 **@${data.username}** sedang LIVE!`,
       embeds: [buildLiveEmbed(data)],
       allowed_mentions: { parse: [] },
@@ -331,7 +331,7 @@ export class DiscordService {
     }
 
     const payload = {
-      username: 'TikTok Uploads',
+      username: 'Tuyul Bot',
       content: `🎬 Video baru dari **@${data.username}**`,
       embeds: [buildContentEmbed(data)],
       allowed_mentions: { parse: [] },
