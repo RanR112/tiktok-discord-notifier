@@ -12,7 +12,12 @@
  *
  * Update jumlah penonton dilakukan dengan MENG-EDIT pesan Discord yang sama,
  * bukan mengirim pesan baru, dan dibatasi oleh LIVE_UPDATE_INTERVAL. Jadi
- * berapa pun lamanya siaran, channel hanya menerima satu pesan per sesi.
+ * berapa pun lamanya siaran, channel hanya menerima satu pesan per sesi --
+ * KECUALI pesan itu hilang di tengah jalan (dihapus manual di Discord, atau
+ * PATCH-nya gagal dengan 404): begitu itu terdeteksi, `liveMessageId` di state
+ * direset ke null, dan siklus berikutnya akan mengirim notifikasi PENGGANTI
+ * untuk sesi yang sama -- sesi yang masih berlangsung tidak boleh dibiarkan
+ * tanpa notifikasi sama sekali di channel.
  */
 
 import { ProviderUnavailableError } from '../utils/errors.js';
@@ -56,11 +61,16 @@ export function decideLiveAction(state, status, options = {}) {
     return { action: 'notify', liveId, reason: 'sesi LIVE baru terdeteksi' };
   }
 
+  // Sesi sama, tapi tidak ada pesan untuk sesi ini -- entah dihapus manual di
+  // Discord, atau pengiriman awal sempat gagal (404 saat coba di-edit).
+  // Kirim notifikasi baru lagi, terlepas dari LIVE_UPDATE_INTERVAL: channel
+  // tidak boleh dibiarkan tanpa notifikasi untuk sesi yang masih berlangsung.
+  if (!state.liveMessageId) {
+    return { action: 'notify', liveId, reason: 'pesan LIVE sebelumnya hilang, kirim ulang' };
+  }
+
   if (liveUpdateInterval <= 0) {
     return { action: 'none', liveId, reason: 'sesi sama, update penonton dinonaktifkan' };
-  }
-  if (!state.liveMessageId) {
-    return { action: 'none', liveId, reason: 'sesi sama, tidak ada pesan untuk di-edit' };
   }
 
   const lastUpdate = state.lastLiveUpdateAt ? Date.parse(state.lastLiveUpdateAt) : 0;
@@ -162,11 +172,22 @@ export class LiveMonitor {
    * @private
    */
   async #handleNewSession(status, liveId) {
-    this.logger.info(`LIVE baru terdeteksi untuk @${status.username}`, {
-      liveId,
-      title: status.title,
-      viewers: status.viewers,
-    });
+    // Dua alasan berbeda bisa sampai di sini: sesi LIVE beneran baru, atau
+    // sesi yang sama tapi pesan Discord-nya sudah hilang (lihat
+    // decideLiveAction). Log-nya dibedakan supaya tidak membingungkan saat dibaca.
+    const isResend = this.store.get().currentLiveId === liveId;
+    if (isResend) {
+      this.logger.info(
+        `Pesan LIVE untuk @${status.username} sudah tidak ada di Discord (kemungkinan dihapus manual) -- mengirim notifikasi pengganti.`,
+        { liveId },
+      );
+    } else {
+      this.logger.info(`LIVE baru terdeteksi untuk @${status.username}`, {
+        liveId,
+        title: status.title,
+        viewers: status.viewers,
+      });
+    }
 
     const result = await this.discord.sendLiveNotification(status);
 

@@ -113,7 +113,15 @@ describe('decideLiveAction — skenario satu sesi = satu notifikasi', () => {
   });
 
   it('10:01 dan 10:02 masih LIVE sesi sama -> tidak ada notifikasi baru', () => {
-    const state = { ...createDefaultState(), currentLiveId: 'room-A', lastLiveStatus: true };
+    // liveMessageId diisi karena begitu perilaku nyatanya: #handleNewSession
+    // selalu menyimpan id pesan begitu notifikasi pertama terkirim. Tanpanya,
+    // fixture ini justru mensimulasikan skenario "pesan hilang" yang lain.
+    const state = {
+      ...createDefaultState(),
+      currentLiveId: 'room-A',
+      lastLiveStatus: true,
+      liveMessageId: 'msg-1',
+    };
     for (let i = 0; i < 2; i += 1) {
       assert.equal(decideLiveAction(state, liveStatus()).action, 'none');
     }
@@ -189,12 +197,24 @@ describe('decideLiveAction — update jumlah penonton', () => {
     assert.equal(decision.action, 'none');
   });
 
-  it('tidak mencoba meng-edit kalau id pesan tidak diketahui', () => {
+  it('mengirim notifikasi pengganti kalau pesan sebelumnya hilang (mis. dihapus manual)', () => {
+    // Bukan 'none': channel tidak boleh dibiarkan tanpa notifikasi untuk sesi
+    // yang masih berlangsung hanya karena pesannya sudah tidak ada.
     const decision = decideLiveAction(
       { ...base, liveMessageId: null },
       liveStatus({ viewers: 9999 }),
       { now, liveUpdateInterval: 300_000 },
     );
-    assert.equal(decision.action, 'none');
+    assert.equal(decision.action, 'notify');
+    assert.equal(decision.liveId, 'room-A');
+  });
+
+  it('tetap mengirim notifikasi pengganti walau update penonton dinonaktifkan', () => {
+    const decision = decideLiveAction(
+      { ...base, liveMessageId: null },
+      liveStatus({ viewers: 9999 }),
+      { now, liveUpdateInterval: 0 },
+    );
+    assert.equal(decision.action, 'notify');
   });
 });
