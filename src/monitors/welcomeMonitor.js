@@ -63,8 +63,8 @@ export function selectNewMembers(members, state, options = {}) {
   };
 }
 
-/** Warna embed welcome, senada dengan tema TikTok di notifikasi lain. */
-const COLOR_WELCOME = 0xfe2c55;
+/** Warna embed welcome -- biru cyan senada dengan avatar bot. */
+const COLOR_WELCOME = 0x4fc3f7;
 
 export class WelcomeMonitor {
   /**

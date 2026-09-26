@@ -32,8 +32,8 @@ function escapeSvgText(text) {
 }
 
 /**
- * Background gradient + hiasan lingkaran samar. Warna mengikuti tema TikTok
- * (merah muda/cyan) supaya konsisten dengan notifikasi lain di project ini.
+ * Background gradient + hiasan lingkaran samar. Warna biru navy + cyan
+ * menyala, senada dengan avatar bot.
  *
  * @returns {Buffer}
  */
@@ -42,13 +42,13 @@ function buildBackgroundSvg() {
     <svg width="${WIDTH}" height="${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#1a1a2e" />
-          <stop offset="100%" stop-color="#16162a" />
+          <stop offset="0%" stop-color="#0a0e1f" />
+          <stop offset="100%" stop-color="#0d1b2e" />
         </linearGradient>
       </defs>
       <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#bg)" />
-      <circle cx="${WIDTH - 60}" cy="60" r="150" fill="#fe2c55" opacity="0.14" />
-      <circle cx="80" cy="${HEIGHT - 40}" r="130" fill="#25f4ee" opacity="0.12" />
+      <circle cx="${WIDTH - 60}" cy="60" r="150" fill="#4fc3f7" opacity="0.16" />
+      <circle cx="80" cy="${HEIGHT - 40}" r="130" fill="#4fc3f7" opacity="0.12" />
     </svg>
   `;
   return Buffer.from(svg);
@@ -69,7 +69,7 @@ function buildTextSvg({ displayName, guildName }) {
   const svg = `
     <svg width="${WIDTH}" height="${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
       <text x="${textX}" y="150" font-family="Arial, sans-serif" font-size="26"
-            font-weight="700" fill="#fe2c55" letter-spacing="2">SELAMAT DATANG</text>
+            font-weight="700" fill="#4fc3f7" letter-spacing="2">SELAMAT DATANG</text>
       <text x="${textX}" y="210" font-family="Arial, sans-serif" font-size="52"
             font-weight="800" fill="#ffffff">${name}</text>
       <text x="${textX}" y="260" font-family="Arial, sans-serif" font-size="24"
@@ -79,7 +79,7 @@ function buildTextSvg({ displayName, guildName }) {
   return Buffer.from(svg);
 }
 
-/** Mask lingkaran untuk avatar, dengan ring dua warna khas TikTok. */
+/** Mask lingkaran untuk avatar, dengan ring biru cyan senada avatar bot. */
 function buildAvatarMaskSvg(size) {
   const svg = `
     <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
@@ -95,8 +95,8 @@ function buildAvatarRingSvg(size) {
     <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#fe2c55" />
-          <stop offset="100%" stop-color="#25f4ee" />
+          <stop offset="0%" stop-color="#7dd3fc" />
+          <stop offset="100%" stop-color="#2196f3" />
         </linearGradient>
       </defs>
       <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="url(#ring)" stroke-width="8" />
