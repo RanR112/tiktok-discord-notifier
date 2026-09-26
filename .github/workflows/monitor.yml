@@ -57,6 +57,12 @@ jobs:
           TIKTOK_USERNAME: ${{ secrets.TIKTOK_USERNAME }}
           DISCORD_LIVE_WEBHOOK_URL: ${{ secrets.DISCORD_LIVE_WEBHOOK_URL }}
           DISCORD_CONTENT_WEBHOOK_URL: ${{ secrets.DISCORD_CONTENT_WEBHOOK_URL }}
+          # Provider konten "official" (Display API) -- tanpa ini, otomatis
+          # jatuh ke default "web" yang best-effort/sering diblokir WAF.
+          TIKTOK_CONTENT_PROVIDER: ${{ secrets.TIKTOK_CONTENT_PROVIDER }}
+          TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+          TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+          TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
           # Fitur sambutan member baru (opsional) -- ketiganya wajib diisi
           # BERSAMAAN di GitHub Secrets, atau dikosongkan semua kalau fitur
           # ini tidak dipakai. Kosong = config.js otomatis menonaktifkannya
