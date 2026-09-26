@@ -9,5 +9,7 @@
   "liveMessageId": null,
   "lastLiveUpdateAt": null,
   "lastViewerCount": null,
-  "lastCheckedAt": "2026-09-26T12:48:17.824Z"
+  "knownMemberIds": [],
+  "memberBootstrapped": false,
+  "lastCheckedAt": "2026-09-26T12:54:13.886Z"
 }
