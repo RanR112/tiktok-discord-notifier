@@ -9,9 +9,11 @@
 
 import { buildConfig, loadEnvFile } from './config.js';
 import { DiscordService } from './services/discord.js';
+import { DiscordBotService } from './services/discordBot.js';
 import { TikTokService } from './services/tiktok.js';
 import { LiveMonitor } from './monitors/liveMonitor.js';
 import { ContentMonitor } from './monitors/contentMonitor.js';
+import { WelcomeMonitor } from './monitors/welcomeMonitor.js';
 import { Scheduler } from './scheduler.js';
 import { StateStore } from './utils/state.js';
 import { ConfigError } from './utils/errors.js';
@@ -39,12 +41,15 @@ async function main() {
   logger.info(
     `Monitor konten     : ${config.contentEnabled ? `aktif (provider: ${config.contentProvider})` : 'NONAKTIF'}`,
   );
+  logger.info(`Sambutan member    : ${config.welcomeEnabled ? 'aktif' : 'NONAKTIF'}`);
   logger.info(`File state         : ${config.stateFile}`);
 
   for (const warning of config.warnings) logger.warn(warning);
 
-  if (!config.liveEnabled && !config.contentEnabled) {
-    logger.error('Tidak ada monitor yang aktif. Isi minimal satu webhook di .env.');
+  if (!config.liveEnabled && !config.contentEnabled && !config.welcomeEnabled) {
+    logger.error(
+      'Tidak ada monitor yang aktif. Isi minimal satu webhook TikTok, atau kredensial welcome member, di .env.',
+    );
     process.exitCode = 1;
     return;
   }
@@ -85,6 +90,17 @@ async function main() {
   if (config.contentEnabled) {
     monitors.push(
       new ContentMonitor({ tiktok, discord, store, config, logger: createLogger('content') }),
+    );
+  }
+  if (config.welcomeEnabled) {
+    const discordBot = new DiscordBotService({
+      botToken: config.welcome.botToken,
+      timeoutMs: config.requestTimeout,
+      retries: config.maxRetries,
+      logger: createLogger('discordBot'),
+    });
+    monitors.push(
+      new WelcomeMonitor({ discordBot, store, config, logger: createLogger('welcome') }),
     );
   }
 

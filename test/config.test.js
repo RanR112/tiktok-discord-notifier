@@ -33,9 +33,9 @@ describe('buildConfig', () => {
     });
   });
 
-  it('gagal kalau kedua webhook kosong', () => {
+  it('gagal kalau tidak ada fitur apa pun yang aktif (webhook maupun welcome)', () => {
     assert.throws(() => buildConfig({ TIKTOK_USERNAME: 'someone' }), {
-      message: /Minimal salah satu dari DISCORD_LIVE_WEBHOOK_URL/,
+      message: /Tidak ada fitur yang aktif/,
     });
   });
 
@@ -127,6 +127,71 @@ describe('buildConfig', () => {
       DISCORD_LIVE_WEBHOOK_URL: `${VALID_LIVE}?wait=true`,
     });
     assert.equal(config.discord.liveWebhookUrl, VALID_LIVE);
+  });
+});
+
+describe('buildConfig — welcome member', () => {
+  const GUILD_ID = '123456789012345678';
+  const CHANNEL_ID = '876543210987654321';
+
+  it('nonaktif secara default, dengan WARN', () => {
+    const config = buildConfig({ TIKTOK_USERNAME: 'someone', DISCORD_LIVE_WEBHOOK_URL: VALID_LIVE });
+    assert.equal(config.welcomeEnabled, false);
+    assert.ok(config.warnings.some((w) => w.includes('DISCORD_BOT_TOKEN')));
+  });
+
+  it('aktif kalau ketiga variable diisi', () => {
+    const config = buildConfig({
+      TIKTOK_USERNAME: 'someone',
+      DISCORD_LIVE_WEBHOOK_URL: VALID_LIVE,
+      DISCORD_BOT_TOKEN: 'bot-token-rahasia',
+      DISCORD_GUILD_ID: GUILD_ID,
+      DISCORD_WELCOME_CHANNEL_ID: CHANNEL_ID,
+    });
+    assert.equal(config.welcomeEnabled, true);
+    assert.equal(config.welcome.guildId, GUILD_ID);
+    assert.equal(config.welcome.channelId, CHANNEL_ID);
+  });
+
+  it('menolak kalau cuma sebagian variable welcome diisi', () => {
+    assert.throws(
+      () =>
+        buildConfig({
+          TIKTOK_USERNAME: 'someone',
+          DISCORD_LIVE_WEBHOOK_URL: VALID_LIVE,
+          DISCORD_BOT_TOKEN: 'bot-token-rahasia',
+          // GUILD_ID dan WELCOME_CHANNEL_ID sengaja tidak diisi
+        }),
+      { message: /butuh KETIGA variable ini diisi bersamaan/ },
+    );
+  });
+
+  it('menolak guild id / channel id yang bukan snowflake valid', () => {
+    assert.throws(
+      () =>
+        buildConfig({
+          TIKTOK_USERNAME: 'someone',
+          DISCORD_LIVE_WEBHOOK_URL: VALID_LIVE,
+          DISCORD_BOT_TOKEN: 'x',
+          DISCORD_GUILD_ID: 'bukan-angka',
+          DISCORD_WELCOME_CHANNEL_ID: CHANNEL_ID,
+        }),
+      { message: /DISCORD_GUILD_ID harus berupa Discord snowflake id/ },
+    );
+  });
+
+  it('aplikasi tetap boleh jalan hanya dengan welcome, tanpa webhook TikTok apa pun', () => {
+    // Dicek di index.js, bukan di buildConfig -- tapi buildConfig sendiri
+    // tidak boleh memaksa webhook TikTok terisi kalau tujuannya cuma welcome.
+    const config = buildConfig({
+      TIKTOK_USERNAME: 'someone',
+      DISCORD_BOT_TOKEN: 'x',
+      DISCORD_GUILD_ID: GUILD_ID,
+      DISCORD_WELCOME_CHANNEL_ID: CHANNEL_ID,
+    });
+    assert.equal(config.welcomeEnabled, true);
+    assert.equal(config.liveEnabled, false);
+    assert.equal(config.contentEnabled, false);
   });
 });
 

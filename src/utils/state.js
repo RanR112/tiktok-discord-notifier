@@ -33,6 +33,15 @@ export function createDefaultState() {
     lastLiveUpdateAt: null,
     lastViewerCount: null,
 
+    // --- Welcome member ---
+    // TIDAK dibatasi ring buffer seperti knownContentIds: harus tetap memuat
+    // SEMUA member yang pernah tercatat, selama-lamanya server itu berjalan.
+    // Kalau dibatasi, member lama yang jumlahnya melebihi batas akan
+    // "terlupakan" dan disambut ulang secara keliru walau tidak pernah keluar.
+    knownMemberIds: [],
+    /** false = belum pernah sinkron. Siklus pertama hanya merekam, tidak menyambut. */
+    memberBootstrapped: false,
+
     // --- Umum ---
     lastCheckedAt: null,
   };
@@ -59,6 +68,10 @@ export function normalizeState(raw) {
 
   const lastContentId = str(input.lastContentId);
 
+  const knownMemberIds = Array.isArray(input.knownMemberIds)
+    ? [...new Set(input.knownMemberIds.filter((id) => typeof id === 'string' && id !== ''))]
+    : [];
+
   return {
     version: STATE_VERSION,
     lastContentId,
@@ -78,6 +91,11 @@ export function normalizeState(raw) {
       typeof input.lastViewerCount === 'number' && Number.isFinite(input.lastViewerCount)
         ? input.lastViewerCount
         : null,
+    knownMemberIds,
+    memberBootstrapped:
+      typeof input.memberBootstrapped === 'boolean'
+        ? input.memberBootstrapped
+        : knownMemberIds.length > 0,
     lastCheckedAt: str(input.lastCheckedAt),
   };
 }
@@ -97,6 +115,24 @@ export function rememberContentIds(known, newIds) {
     if (!merged.includes(id)) merged.push(id);
   }
   return merged.slice(-KNOWN_CONTENT_LIMIT);
+}
+
+/**
+ * Menambahkan id member ke daftar yang diingat. TIDAK dibatasi ukuran
+ * (beda dari `rememberContentIds`) -- lihat catatan di `createDefaultState`.
+ * Fungsi murni: mengembalikan array baru.
+ *
+ * @param {string[]} known
+ * @param {string[]} newIds
+ * @returns {string[]}
+ */
+export function rememberMemberIds(known, newIds) {
+  const merged = [...known];
+  for (const id of newIds) {
+    if (typeof id !== 'string' || id === '') continue;
+    if (!merged.includes(id)) merged.push(id);
+  }
+  return merged;
 }
 
 /**

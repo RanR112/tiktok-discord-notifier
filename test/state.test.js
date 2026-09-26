@@ -10,6 +10,7 @@ import {
   createDefaultState,
   normalizeState,
   rememberContentIds,
+  rememberMemberIds,
 } from '../src/utils/state.js';
 
 describe('normalizeState', () => {
@@ -72,6 +73,47 @@ describe('rememberContentIds', () => {
   it('menghormati batas ring buffer', () => {
     const many = Array.from({ length: KNOWN_CONTENT_LIMIT + 10 }, (_, i) => `id-${i}`);
     assert.equal(rememberContentIds([], many).length, KNOWN_CONTENT_LIMIT);
+  });
+});
+
+describe('rememberMemberIds', () => {
+  it('menambahkan id baru tanpa duplikat', () => {
+    assert.deepEqual(rememberMemberIds(['a', 'b'], ['b', 'c']), ['a', 'b', 'c']);
+  });
+
+  it('mengabaikan nilai kosong dan non-string', () => {
+    assert.deepEqual(rememberMemberIds(['a'], ['', null, undefined, 5, 'd']), ['a', 'd']);
+  });
+
+  it('tidak memutasi array masukan', () => {
+    const known = ['a'];
+    rememberMemberIds(known, ['b']);
+    assert.deepEqual(known, ['a']);
+  });
+
+  it('TIDAK membatasi ukuran, beda dari rememberContentIds', () => {
+    // Server dengan ribuan member harus tetap semuanya diingat -- kalau
+    // dibatasi, member lama akan "terlupakan" dan disambut ulang secara keliru.
+    const many = Array.from({ length: KNOWN_CONTENT_LIMIT + 50 }, (_, i) => `user-${i}`);
+    assert.equal(rememberMemberIds([], many).length, KNOWN_CONTENT_LIMIT + 50);
+  });
+});
+
+describe('normalizeState — welcome member', () => {
+  it('default: belum ter-bootstrap, daftar member kosong', () => {
+    const state = normalizeState({});
+    assert.equal(state.memberBootstrapped, false);
+    assert.deepEqual(state.knownMemberIds, []);
+  });
+
+  it('state lama tanpa flag bootstrap tapi sudah punya member dianggap sudah ter-bootstrap', () => {
+    const state = normalizeState({ knownMemberIds: ['1', '2'] });
+    assert.equal(state.memberBootstrapped, true);
+  });
+
+  it('membuang duplikat dan entri non-string dari knownMemberIds', () => {
+    const state = normalizeState({ knownMemberIds: ['1', '1', '', null, 2, '3'] });
+    assert.deepEqual(state.knownMemberIds, ['1', '3']);
   });
 });
 

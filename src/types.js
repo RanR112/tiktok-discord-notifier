@@ -18,6 +18,8 @@
  * @property {string|null}   liveMessageId       Id pesan Discord untuk sesi LIVE saat ini (dipakai untuk edit).
  * @property {string|null}   lastLiveUpdateAt    ISO timestamp update penonton terakhir.
  * @property {number|null}   lastViewerCount     Jumlah penonton pada update terakhir.
+ * @property {string[]}      knownMemberIds      SEMUA id member server yang pernah tercatat (tidak dibatasi ukuran).
+ * @property {boolean}       memberBootstrapped  Sudah pernah sinkron awal? Kalau belum, siklus pertama hanya merekam.
  * @property {string|null}   lastCheckedAt       ISO timestamp siklus pengecekan terakhir.
  */
 
@@ -56,6 +58,17 @@
  * @property {number|null}  comments
  * @property {number|null}  shares
  * @property {string}       source      Nama provider yang menghasilkan item ini.
+ */
+
+/**
+ * Satu member server Discord, hasil `discordBotService.listGuildMembers()`.
+ *
+ * @typedef {Object} GuildMember
+ * @property {string}       id          User id (snowflake) — dipakai sebagai kunci dedup.
+ * @property {string}       username    Username Discord (tanpa diskriminator).
+ * @property {string|null}  displayName Nickname di server ini, kalau ada; else username.
+ * @property {string}       avatarUrl   URL avatar (CDN Discord), sudah ada fallback default avatar.
+ * @property {string|null}  joinedAt    ISO-8601 kapan member ini join server.
  */
 
 export {};

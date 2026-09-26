@@ -21,6 +21,7 @@
     "notifier"
   ],
   "license": "MIT",
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "sharp": "^0.35.4"
+  }
 }

@@ -105,6 +105,25 @@ function readWebhookUrl(raw, key, errors) {
 }
 
 /**
+ * Memvalidasi format Discord snowflake id (guild id, channel id, dll):
+ * murni digit, 17-20 karakter.
+ *
+ * @param {string|undefined} raw
+ * @param {string} key
+ * @param {string[]} errors
+ * @returns {string|null}
+ */
+function readSnowflake(raw, key, errors) {
+  const value = raw?.trim();
+  if (!value) return null;
+  if (!/^\d{17,20}$/.test(value)) {
+    errors.push(`${key} harus berupa Discord snowflake id (17-20 digit angka), dapat "${value}".`);
+    return null;
+  }
+  return value;
+}
+
+/**
  * Membangun objek konfigurasi dari environment.
  * Mengumpulkan SEMUA masalah lalu melaporkannya sekaligus, supaya pengguna
  * tidak harus memperbaiki satu per satu lewat restart berulang.
@@ -138,11 +157,10 @@ export function buildConfig(env = process.env) {
     errors,
   );
 
-  if (!liveWebhookUrl && !contentWebhookUrl) {
-    errors.push(
-      'Minimal salah satu dari DISCORD_LIVE_WEBHOOK_URL atau DISCORD_CONTENT_WEBHOOK_URL harus diisi.',
-    );
-  }
+  // Catatan: pengecekan "minimal satu fitur harus aktif" (webhook TikTok ATAU
+  // welcome member) dipindah ke akhir fungsi, setelah field welcome selesai
+  // di-parse -- supaya setup yang cuma pakai welcome (tanpa TikTok sama
+  // sekali) tetap valid.
   if (!liveWebhookUrl) {
     warnings.push(
       'DISCORD_LIVE_WEBHOOK_URL belum diisi — monitoring LIVE dinonaktifkan.',
@@ -214,6 +232,40 @@ export function buildConfig(env = process.env) {
 
   const stateFile = resolve(env.STATE_FILE?.trim() || './data/state.json');
 
+  // --- Welcome member (opsional, fitur terpisah dari notifikasi TikTok) ---
+  const botToken = env.DISCORD_BOT_TOKEN?.trim() || null;
+  const guildId = readSnowflake(env.DISCORD_GUILD_ID, 'DISCORD_GUILD_ID', errors);
+  const welcomeChannelId = readSnowflake(
+    env.DISCORD_WELCOME_CHANNEL_ID,
+    'DISCORD_WELCOME_CHANNEL_ID',
+    errors,
+  );
+  const welcomeMaxPerCycle = readInteger(env, 'WELCOME_MAX_PER_CYCLE', 5, { min: 1, max: 50 }, errors);
+
+  const welcomeFieldsPresent = [botToken, guildId, welcomeChannelId].filter(Boolean).length;
+  if (welcomeFieldsPresent > 0 && welcomeFieldsPresent < 3) {
+    errors.push(
+      'Fitur welcome member butuh KETIGA variable ini diisi bersamaan: ' +
+        'DISCORD_BOT_TOKEN, DISCORD_GUILD_ID, DISCORD_WELCOME_CHANNEL_ID. ' +
+        'Kosongkan ketiganya untuk mematikan fitur ini, atau isi semuanya untuk mengaktifkan.',
+    );
+  }
+  const welcomeEnabled = welcomeFieldsPresent === 3;
+  if (welcomeFieldsPresent === 0) {
+    warnings.push(
+      'DISCORD_BOT_TOKEN/DISCORD_GUILD_ID/DISCORD_WELCOME_CHANNEL_ID belum diisi — fitur sambutan member baru dinonaktifkan.',
+    );
+  }
+
+  // Setidaknya satu fitur (LIVE, konten, atau welcome member) harus aktif.
+  if (!liveWebhookUrl && !contentWebhookUrl && !welcomeEnabled) {
+    errors.push(
+      'Tidak ada fitur yang aktif. Isi minimal salah satu dari DISCORD_LIVE_WEBHOOK_URL, ' +
+        'DISCORD_CONTENT_WEBHOOK_URL, atau ketiga variable welcome member (DISCORD_BOT_TOKEN, ' +
+        'DISCORD_GUILD_ID, DISCORD_WELCOME_CHANNEL_ID).',
+    );
+  }
+
   if (errors.length > 0) {
     throw new ConfigError(
       `Konfigurasi tidak valid:\n${errors.map((e) => `  - ${e}`).join('\n')}\n\n` +
@@ -246,6 +298,14 @@ export function buildConfig(env = process.env) {
 
     liveEnabled: Boolean(liveWebhookUrl),
     contentEnabled: Boolean(contentWebhookUrl) && contentProvider !== 'disabled',
+
+    welcome: Object.freeze({
+      botToken,
+      guildId,
+      channelId: welcomeChannelId,
+      maxPerCycle: welcomeMaxPerCycle,
+    }),
+    welcomeEnabled,
 
     warnings: Object.freeze(warnings),
   });
