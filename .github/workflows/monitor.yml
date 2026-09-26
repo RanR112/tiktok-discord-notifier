@@ -57,6 +57,13 @@ jobs:
           TIKTOK_USERNAME: ${{ secrets.TIKTOK_USERNAME }}
           DISCORD_LIVE_WEBHOOK_URL: ${{ secrets.DISCORD_LIVE_WEBHOOK_URL }}
           DISCORD_CONTENT_WEBHOOK_URL: ${{ secrets.DISCORD_CONTENT_WEBHOOK_URL }}
+          # Fitur sambutan member baru (opsional) -- ketiganya wajib diisi
+          # BERSAMAAN di GitHub Secrets, atau dikosongkan semua kalau fitur
+          # ini tidak dipakai. Kosong = config.js otomatis menonaktifkannya
+          # dengan WARN, bukan error.
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+          DISCORD_WELCOME_CHANNEL_ID: ${{ secrets.DISCORD_WELCOME_CHANNEL_ID }}
           # Nilai ini wajib diisi validator config walau di mode --once
           # loop-nya tidak dipakai. Kadensi sesungguhnya diatur oleh cron
           # di atas, bukan variable ini.
