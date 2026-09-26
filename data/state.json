@@ -1,39 +1,13 @@
 {
   "version": 1,
-  "lastContentId": "7679888329768307976",
-  "knownContentIds": [
-    "7679888329768307976"
-  ],
-  "contentBootstrapped": true,
+  "lastContentId": null,
+  "knownContentIds": [],
+  "contentBootstrapped": false,
   "currentLiveId": null,
   "lastLiveStatus": false,
   "liveStartedAt": null,
   "liveMessageId": null,
   "lastLiveUpdateAt": null,
   "lastViewerCount": null,
-  "knownMemberIds": [
-    "408785106942164992",
-    "411916947773587456",
-    "534768896658505743",
-    "667620255312510978",
-    "757152125972381696",
-    "830530156048285716",
-    "843825687391240202",
-    "888866897595097098",
-    "1046023892235452416",
-    "1144938337816289300",
-    "1145363441524166758",
-    "1225390726578307182",
-    "1230491982237925386",
-    "1262001617927143510",
-    "1281493440416321577",
-    "1363950622499405834",
-    "1431090690124943491",
-    "1451721178971508918",
-    "1493835784736866409",
-    "1509568481031356506",
-    "1553362169561747506"
-  ],
-  "memberBootstrapped": true,
-  "lastCheckedAt": "2026-09-26T12:46:02.825Z"
+  "lastCheckedAt": "2026-09-26T12:48:17.824Z"
 }
