@@ -60,6 +60,10 @@ export function buildAvatarUrl(user) {
 export function mapGuildMember(raw) {
   const user = raw?.user;
   if (!user?.id) return null;
+  // Catatan: Discord List Guild Members MENYERTAKAN bot di responsnya
+  // (dikonfirmasi langsung saat debugging: bot "OwO" ikut muncul). Ini
+  // sengaja TIDAK difilter -- bot baru yang ditambahkan ke server juga
+  // dianggap member dan ikut disambut, sesuai yang diinginkan di project ini.
 
   return {
     id: String(user.id),

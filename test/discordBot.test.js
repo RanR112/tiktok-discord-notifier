@@ -58,6 +58,17 @@ describe('mapGuildMember', () => {
     assert.equal(mapGuildMember({}), null);
     assert.equal(mapGuildMember(null), null);
   });
+
+  it('bot lain TETAP dianggap member dan bisa disambut (perilaku yang disengaja)', () => {
+    // Discord List Guild Members MEMANG menyertakan bot di responsnya
+    // (dikonfirmasi langsung saat debugging: bot "OwO" ikut muncul).
+    // Ini sengaja tidak difilter di project ini.
+    const bot = mapGuildMember({
+      user: { id: '1', username: 'SomeOtherBot', bot: true, avatar: null },
+    });
+    assert.notEqual(bot, null);
+    assert.equal(bot.id, '1');
+  });
 });
 
 describe('DiscordBotService', () => {
